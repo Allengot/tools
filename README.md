@@ -5,3 +5,4 @@ pip3 install python-ldap
 sudo apt-get install -y python3-dev libldap2-dev libsasl2-dev libssl-dev  
 # 使用方法
 python3 mS-DS-CreatorSID.py -u 'cv17' -p 'Admin12345' -dc "DC=redteam,DC=red" -dc-ip 10.10.10.8
+![image](https://github.com/Allengot/tools/blob/main/mS-DS-CreatorSID/mS-DS-CreatorSID.png?raw=true)
