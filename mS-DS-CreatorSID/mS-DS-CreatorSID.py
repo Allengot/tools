@@ -42,11 +42,10 @@ def ldap_search(dc_ip, port, username, password, base_dn, domain, category, attr
     try:
         # 连接到 LDAP 服务器
         conn = ldap3.Connection(server, user=user_dn, password=password, auto_bind=True)
-        print(f"LDAP connection successful: {conn}")
+
 
         # 执行查询
-        filter_str = f"(&(objectcategory={category})(sAMAccountName=*))"
-        print(f"Executing LDAP search with filter: {filter_str}")
+        filter_str = f"(&(objectcategory={category})(sAMAccountName=*))"  # 使用计算机名称过滤
         search_result = conn.search(search_base=base_dn, search_filter=filter_str, attributes=attributes)
 
         # 打印查询结果数量
@@ -55,16 +54,15 @@ def ldap_search(dc_ip, port, username, password, base_dn, domain, category, attr
         # 处理查询结果
         for entry in conn.entries:
             print(f"Entry DN: {entry.entry_dn}")
-            for attr in attributes:
-                if attr in entry.entry_attributes:
-                    values = entry[attr].values
-                    print(f"{attr}: {values}")
+            for attr in entry.entry_attributes:
+                values = entry[attr].values
+                print(f"{attr}: {values}")
 
-                    if attr == "mS-DS-CreatorSID" and values:
-                        # 解密并显示可读的SID字符串
-                        decoded_sid = decode_msds_creator_sid(values[0])
-                        if decoded_sid:
-                            print(f"Decoded {attr}: {decoded_sid}")
+                if attr == "mS-DS-CreatorSID" and values:
+                    # 解密并显示可读的SID字符串
+                    decoded_sid = decode_msds_creator_sid(values[0])
+                    if decoded_sid:
+                        print(f"Decoded {attr}: {decoded_sid}")
 
     except ldap3.core.exceptions.LDAPException as e:
         print(f"LDAP Error: {e}")
@@ -82,7 +80,7 @@ if __name__ == "__main__":
     parser.add_argument("-dc-ip", "--dc_ip", help="LDAP server IP", required=True)
     parser.add_argument("-port", "-P", default=389, type=int, help="LDAP server port (default is 389)")
     parser.add_argument("-domain", "--domain", help="Domain name", required=True)
-    parser.add_argument("-category", "--category", help="Object category (e.g., weblogic)", required=True)
+    parser.add_argument("-computer-name", "--computer-name", help="Computer category (e.g., computer, weblogic, ...)", required=True)
     args = parser.parse_args()
 
     dc_ip = args.dc_ip
@@ -91,7 +89,7 @@ if __name__ == "__main__":
     password = args.password
     base_dn = args.base_dn
     domain = args.domain
-    category = args.category
+    category = args.computer_name.lower()  # 转换为小写
     attributes = ["mS-DS-CreatorSID"]
 
     # 调用查询函数
