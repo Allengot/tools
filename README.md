@@ -6,6 +6,6 @@ pip3 install python-ldap
 pip3 install ldap3
 
 ### 使用方法
-python3 mS-DS-CreatorSID.py -u 'cv17' -p 'Admin12345' -dc "DC=redteam,DC=red" -dc-ip 10.10.10.8
+python3 mS-DS-CreatorSID.py -dc-ip 10.10.10.8 -u cv17 -p Admin12345 -dc "DC=redteam,DC=red" -computer-name computer -domain redteam.red -port 389
 
 ![image](https://github.com/Allengot/tools/blob/main/mS-DS-CreatorSID/mS-DS-CreatorSID.png?raw=true)
