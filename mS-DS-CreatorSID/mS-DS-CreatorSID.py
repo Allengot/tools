@@ -43,7 +43,6 @@ def ldap_search(dc_ip, port, username, password, base_dn, domain, category, attr
         # 连接到 LDAP 服务器
         conn = ldap3.Connection(server, user=user_dn, password=password, auto_bind=True)
 
-
         # 执行查询
         filter_str = f"(&(objectcategory={category})(sAMAccountName=*))"  # 使用计算机名称过滤
         search_result = conn.search(search_base=base_dn, search_filter=filter_str, attributes=attributes)
@@ -80,7 +79,7 @@ if __name__ == "__main__":
     parser.add_argument("-dc-ip", "--dc_ip", help="LDAP server IP", required=True)
     parser.add_argument("-port", "-P", default=389, type=int, help="LDAP server port (default is 389)")
     parser.add_argument("-domain", "--domain", help="Domain name", required=True)
-    parser.add_argument("-computer-name", "--computer-name", help="Computer category (e.g., computer, weblogic, ...)", required=True)
+    parser.add_argument("-computer-name", "--computer_name", help="Computer category (e.g., computer, weblogic, ...)", required=True)
     args = parser.parse_args()
 
     dc_ip = args.dc_ip
