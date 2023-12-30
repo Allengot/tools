@@ -30,9 +30,9 @@ def decode_msds_creator_sid(encoded_sid):
         print(f"Error decoding SID: {e}")
         return None
 
-def ldap_search(dc_ip, username, password, base_dn, filter_str, attributes):
-    ldap_server = f"ldap://{dc_ip}:389"
-    user_dn = f"{username}@redteam.red"
+def ldap_search(dc_ip, port, username, password, base_dn, domain, category, attributes):
+    ldap_server = f"ldap://{dc_ip}:{port}"
+    user_dn = f"{username}@{domain}"
 
     # 定义 LDAP 服务器
     server = ldap3.Server(ldap_server, get_info=ldap3.ALL)
@@ -42,15 +42,21 @@ def ldap_search(dc_ip, username, password, base_dn, filter_str, attributes):
     try:
         # 连接到 LDAP 服务器
         conn = ldap3.Connection(server, user=user_dn, password=password, auto_bind=True)
+        print(f"LDAP connection successful: {conn}")
 
         # 执行查询
+        filter_str = f"(&(objectcategory={category})(sAMAccountName=*))"
+        print(f"Executing LDAP search with filter: {filter_str}")
         search_result = conn.search(search_base=base_dn, search_filter=filter_str, attributes=attributes)
+
+        # 打印查询结果数量
+        print(f"Number of entries found: {len(conn.entries)}")
 
         # 处理查询结果
         for entry in conn.entries:
-            print(entry.entry_dn)
+            print(f"Entry DN: {entry.entry_dn}")
             for attr in attributes:
-                if attr in entry:
+                if attr in entry.entry_attributes:
                     values = entry[attr].values
                     print(f"{attr}: {values}")
 
@@ -74,14 +80,19 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--password", help="LDAP password", required=True)
     parser.add_argument("-dc", "--base_dn", help="LDAP base DN", required=True)
     parser.add_argument("-dc-ip", "--dc_ip", help="LDAP server IP", required=True)
+    parser.add_argument("-port", "-P", default=389, type=int, help="LDAP server port (default is 389)")
+    parser.add_argument("-domain", "--domain", help="Domain name", required=True)
+    parser.add_argument("-category", "--category", help="Object category (e.g., weblogic)", required=True)
     args = parser.parse_args()
 
     dc_ip = args.dc_ip
+    port = args.port
     username = args.username
     password = args.password
     base_dn = args.base_dn
-    filter_str = "(objectcategory=computer)"
+    domain = args.domain
+    category = args.category
     attributes = ["mS-DS-CreatorSID"]
 
     # 调用查询函数
-    ldap_search(dc_ip, username, password, base_dn, filter_str, attributes)
+    ldap_search(dc_ip, port, username, password, base_dn, domain, category, attributes)
