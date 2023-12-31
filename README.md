@@ -16,3 +16,13 @@ sid.py解决了Adfine.exe查看机器账号的sid值的问题
 python3 sid.py -dc-ip 10.10.10.8 -p 389 -dc "DC=redteam,DC=red" -u cv17 -pw Admin12345 -sid S-1-5-21-1359007890-1682372173-1631803504-1131
 
 ![image](https://github.com/Allengot/tools/blob/main/sid/sid.png)
+
+## Unconstrained.py
+Unconstrained.py查看非约束委派的机器账户和普通账户
+### 使用方法
+###### 查询非约束委派机器账户和普通账户
+python3 spn1.py -dc-ip 10.10.10.8 -port 389 -u gu -p Gu12345 -dc 'DC=redteam,DC=red' -all
+###### 查询非约束委派普通账户
+python3 spn1.py -dc-ip 10.10.10.8 -port 389 -u gu -p Gu12345 -dc 'DC=redteam,DC=red' -user
+###### 查询非约束委派机器账户
+python3 spn1.py -dc-ip 10.10.10.8 -port 389 -u gu -p Gu12345 -dc 'DC=redteam,DC=red' -machine
