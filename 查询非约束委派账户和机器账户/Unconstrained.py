@@ -19,7 +19,10 @@ def ldap_query(dc_ip, port, username, password, ldap_base, ldap_filter, prefix):
 
             # 获取查询结果
             entries = [f'{prefix}: {entry.entry_dn}' for entry in conn.entries]
-            print('\n'.join(entries))  # 每个查询结果占用一行
+            if entries:
+                print('\n'.join(entries))  # 每个查询结果占用一行
+            else:
+                print(f"No entries found for {prefix}")
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -35,10 +38,6 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--password', help='LDAP password', required=True)
     parser.add_argument('-dc', '--ldap-base', help='LDAP base', required=True)
 
-    # 添加 -all 参数，用于同时显示用户和机器
-    parser.add_argument('-all', '--ldap-filter-all', action='store_true',
-                        help='Use both default LDAP filters for user and machine delegation')
-
     # 添加 -user 参数，用于指定用户过滤器，默认为给定的过滤器
     parser.add_argument('-user', '--ldap-filter-user', action='store_true',
                         help='Use default LDAP filter for user delegation')
@@ -46,6 +45,10 @@ if __name__ == "__main__":
     # 添加 -machine 参数，用于指定机器过滤器，默认为给定的过滤器
     parser.add_argument('-machine', '--ldap-filter-machine', action='store_true',
                         help='Use default LDAP filter for machine delegation')
+
+    # 添加 -all 参数，用于同时显示用户和机器
+    parser.add_argument('-all', '--ldap-filter-all', action='store_true',
+                        help='Use both default LDAP filters for user and machine delegation')
 
     # 添加 -filter 参数，用于指定自定义过滤器
     parser.add_argument('-filter', '--ldap-filter', help='LDAP filter', default=None)
@@ -55,20 +58,10 @@ if __name__ == "__main__":
 
     # 根据参数使用相应的过滤器进行LDAP查询
     if args.ldap_filter_all:
-        ldap_filter_user = default_user_filter
-        ldap_filter_machine = default_machine_filter
-    elif args.ldap_filter_user:
-        ldap_filter_user = args.ldap_filter
-        ldap_filter_machine = None
-    elif args.ldap_filter_machine:
-        ldap_filter_user = None
-        ldap_filter_machine = args.ldap_filter
-    else:
-        ldap_filter_user = ldap_filter_machine = args.ldap_filter
-
-    if ldap_filter_user:
-        ldap_query(args.dc_ip, args.port, args.username, args.password, args.ldap_base, ldap_filter_user, 'User')
-    
-    if ldap_filter_machine:
+        ldap_query(args.dc_ip, args.port, args.username, args.password, args.ldap_base, default_user_filter, 'User')
         print('--------------------------------------------------')  # 添加这一行作为分隔线
-        ldap_query(args.dc_ip, args.port, args.username, args.password, args.ldap_base, ldap_filter_machine, 'Machine')
+        ldap_query(args.dc_ip, args.port, args.username, args.password, args.ldap_base, default_machine_filter, 'Machine')
+    elif args.ldap_filter_user:
+        ldap_query(args.dc_ip, args.port, args.username, args.password, args.ldap_base, default_user_filter, 'User')
+    elif args.ldap_filter_machine:
+        ldap_query(args.dc_ip, args.port, args.username, args.password, args.ldap_base, default_machine_filter, 'Machine')
